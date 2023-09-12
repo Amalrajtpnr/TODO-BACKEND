@@ -1,20 +1,30 @@
 const Task = require("../models/task.js");
 const router = require("express").Router();
-const { Promise } = require("mongoose");
 
 // Create a new task
-router.post("/", async (req, res) => {
+router.post("/tasks", async (req, res) => {
+  const task = new Task(req.body);
+
   try {
-    const task = new Task(req.body);
-    await task.save();
-    res.status(201).json(task);
+    const newTask = await task.save(); // Save the task
+    res.status(201).json(newTask);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).json(error);
   }
 });
 
-//get post
-router.get("/:id", async (req, res) => {
+// Get all tasks
+router.get("/tasks", async (req, res) => {
+  try {
+    const tasks = await Task.find();
+    res.status(200).json(tasks);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+// Get a specific task by ID
+router.get("/tasks/:id", async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
     res.status(200).json(task);
@@ -23,31 +33,35 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-//update a post
-router.put("/:id", async (req, res) => {
+// Update a task by ID
+router.put("/tasks/:id", async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
-    if (post.userId === req.body.userId) {
-      await post.updateOne({ $set: req.body });
-      res.status(200).json("the post has been updated");
-    } else {
-      res.status(403).json("you can update only your post");
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json("Task not found");
     }
+
+    // Update task properties here
+    // Example: task.text = req.body.text;
+    // Update other properties as needed
+
+    await task.save();
+    res.status(200).json(task);
   } catch (error) {
     res.status(500).json(error);
   }
 });
 
-//delete a post
-router.delete("/:id", async (req, res) => {
+// Delete a task by ID
+router.delete("/tasks/:id", async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
-    if (post.userId === req.body.userId) {
-      await post.deleteOne();
-      res.status(200).json("the post has been deleted");
-    } else {
-      res.status(403).json("you can delete only your post");
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json("Task not found");
     }
+
+    await task.deleteOne();
+    res.status(200).json("Task deleted successfully");
   } catch (error) {
     res.status(500).json(error);
   }

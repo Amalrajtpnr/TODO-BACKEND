@@ -3,7 +3,7 @@ require("dotenv").config();
 const cors = require("cors");
 const connectDB = require("./config/db.js");
 const postRoutes = require("./routes/post.js");
-
+const authRoutes = require("./routes/auth");
 
 const app = express();
 const port = process.env.PORT;
@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
 app.use("/api/posts", postRoutes);
-
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("welcome to homepage");
